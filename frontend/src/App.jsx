@@ -143,7 +143,7 @@ export default function App() {
         <form className="upload-form" onSubmit={onSubmit}>
           <input type="file" accept="image/*" onChange={onFileChange} />
           <button type="submit" disabled={loading}>
-            {loading ? "Running..." : "Predict"}
+            {loading ? "Run" : "Run"}
           </button>
         </form>
 

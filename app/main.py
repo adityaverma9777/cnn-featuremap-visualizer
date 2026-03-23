@@ -258,11 +258,41 @@ def build_explainability_payload(
     pool2 = debug["pool2"]
     pool3 = debug["pool3"]
     flatten = debug["flatten"].squeeze(0)
+    fc1_pre = debug["fc1_pre"].squeeze(0)
 
     fc1_features = debug["fc1_post"].squeeze(0)
     fc2_weights = model.fc2.weight.detach()[predicted_idx]
     fc2_bias = model.fc2.bias.detach()[predicted_idx]
     fc_terms = fc1_features * fc2_weights
+
+    relu_gate = (fc1_pre > 0).float()
+    effective_weights = torch.matmul(fc2_weights * relu_gate, model.fc1.weight.detach())
+    effective_bias = torch.sum((fc2_weights * relu_gate) * model.fc1.bias.detach()) + fc2_bias
+    flatten_terms = flatten * effective_weights
+
+    top_flat_contrib_indices = torch.topk(flatten_terms.abs(), k=min(12, flatten_terms.numel())).indices
+    flatten_top_contributions: List[Dict[str, Any]] = []
+    for idx in top_flat_contrib_indices:
+        index = int(idx.item())
+        channel = index // 16
+        rem = index % 16
+        row = rem // 4
+        col = rem % 4
+        flatten_top_contributions.append(
+            {
+                "flatten_index": index,
+                "feature_value": round(float(flatten[index].item()), 4),
+                "effective_weight": round(float(effective_weights[index].item()), 4),
+                "product": round(float(flatten_terms[index].item()), 4),
+                "conv3_channel": int(channel),
+                "conv3_position": {"row": int(row), "col": int(col)},
+                "heatmap_anchor": {
+                    "x": round((col + 0.5) / 4, 4),
+                    "y": round((row + 0.5) / 4, 4),
+                },
+                "derivative_dscore_dxi": round(float(effective_weights[index].item()), 4),
+            }
+        )
 
     top_term_indices = torch.topk(fc_terms.abs(), k=min(10, fc_terms.numel())).indices
     top_terms = [
@@ -288,6 +318,8 @@ def build_explainability_payload(
             {
                 "flatten_index": index,
                 "value": round(float(flatten[index].item()), 4),
+                "effective_weight": round(float(effective_weights[index].item()), 4),
+                "product": round(float(flatten_terms[index].item()), 4),
                 "conv3_channel": int(channel),
                 "conv3_position": {"row": int(row), "col": int(col)},
                 "heatmap_anchor": {
@@ -359,6 +391,9 @@ def build_explainability_payload(
             "bias": round(float(fc2_bias.item()), 4),
             "score": round(float(logits[0, predicted_idx].item()), 4),
             "linked_features": linked_features,
+            "flatten_top_contributions": flatten_top_contributions,
+            "effective_sum_products": round(float(flatten_terms.sum().item()), 4),
+            "effective_bias": round(float(effective_bias.item()), 4),
         },
         "softmax": {
             "equation": "P(class) = exp(score_class) / sum(exp(all_scores))",

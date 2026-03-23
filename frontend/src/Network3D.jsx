@@ -781,14 +781,14 @@ export default function Network3D({ result, pulseKey, inputImageSrc, highlighted
           className="network-zoom-btn"
           onClick={() => setDesiredDistance((distance) => Math.max(MIN_CAMERA_DISTANCE, distance - ZOOM_STEP))}
         >
-          +
+          Zoom +
         </button>
         <button
           type="button"
           className="network-zoom-btn"
           onClick={() => setDesiredDistance((distance) => Math.min(MAX_CAMERA_DISTANCE, distance + ZOOM_STEP))}
         >
-          -
+          Zoom -
         </button>
       </div>
 
