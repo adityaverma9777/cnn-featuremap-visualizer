@@ -9,6 +9,7 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
+import ModelReasoning from "./ModelReasoning";
 const Network3D = lazy(() => import("./Network3D"));
 
 const API_URL = "http://127.0.0.1:8000/predict";
@@ -69,6 +70,7 @@ export default function App() {
   const [viewMode, setViewMode] = useState(VIEW_MODES.OVERLAY);
   const [overlayOpacity, setOverlayOpacity] = useState(0.55);
   const [pulseKey, setPulseKey] = useState(0);
+  const [selectedFeature, setSelectedFeature] = useState(null);
 
   const probabilityData = useMemo(() => buildProbabilityData(result), [result]);
   const activationData = useMemo(() => buildActivationData(result), [result]);
@@ -86,6 +88,7 @@ export default function App() {
     setSelectedFile(file);
     setResult(null);
     setError("");
+    setSelectedFeature(null);
 
     if (previewUrl) {
       URL.revokeObjectURL(previewUrl);
@@ -120,6 +123,7 @@ export default function App() {
       const payload = await response.json();
       setResult(payload);
       setPulseKey((value) => value + 1);
+      setSelectedFeature(null);
     } catch (err) {
       setError(err.message || "Unexpected error during inference.");
     } finally {
@@ -227,6 +231,15 @@ export default function App() {
             ) : (
               <div className="overlay-placeholder">Heatmap appears after prediction.</div>
             )}
+            {selectedFeature?.heatmap_anchor && (
+              <div
+                className="heatmap-anchor-marker"
+                style={{
+                  left: `${selectedFeature.heatmap_anchor.x * 100}%`,
+                  top: `${selectedFeature.heatmap_anchor.y * 100}%`,
+                }}
+              />
+            )}
           </div>
         )}
 
@@ -239,7 +252,18 @@ export default function App() {
             <div>
               <p className="compare-label">Heatmap</p>
               {heatmapSrc ? (
-                <img src={heatmapSrc} alt="Grad-CAM heatmap" className="image" />
+                <div className="heatmap-anchor-stage">
+                  <img src={heatmapSrc} alt="Grad-CAM heatmap" className="image" />
+                  {selectedFeature?.heatmap_anchor && (
+                    <div
+                      className="heatmap-anchor-marker"
+                      style={{
+                        left: `${selectedFeature.heatmap_anchor.x * 100}%`,
+                        top: `${selectedFeature.heatmap_anchor.y * 100}%`,
+                      }}
+                    />
+                  )}
+                </div>
               ) : (
                 <div className="image placeholder">Heatmap appears after prediction.</div>
               )}
@@ -296,7 +320,19 @@ export default function App() {
               </div>
             }
           >
-            <Network3D result={result} pulseKey={pulseKey} />
+            <Network3D
+              result={result}
+              pulseKey={pulseKey}
+              inputImageSrc={previewUrl}
+              highlightedMap={
+                selectedFeature
+                  ? {
+                      layer: "conv3",
+                      channel: selectedFeature.conv3_channel,
+                    }
+                  : null
+              }
+            />
           </Suspense>
         ) : (
           <div className="network3d-wrap network3d-fallback">
@@ -304,6 +340,12 @@ export default function App() {
           </div>
         )}
       </section>
+
+      <ModelReasoning
+        result={result}
+        selectedFeature={selectedFeature}
+        onFeatureSelect={(feature) => setSelectedFeature(feature)}
+      />
     </main>
   );
 }

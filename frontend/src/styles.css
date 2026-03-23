@@ -200,6 +200,22 @@ body {
   aspect-ratio: 1 / 1;
 }
 
+.heatmap-anchor-stage {
+  position: relative;
+}
+
+.heatmap-anchor-marker {
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  border-radius: 999px;
+  border: 2px solid #ffffff;
+  background: #ff5d00;
+  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.45);
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+
 .overlay-image {
   position: absolute;
   inset: 0;
@@ -261,11 +277,15 @@ body {
 
 .network3d-wrap {
   width: 100%;
-  height: 340px;
+  height: 420px;
   border: 1px solid var(--border);
   border-radius: 12px;
   overflow: hidden;
   background: #faf8f1;
+}
+
+.network3d-feature-wrap {
+  position: relative;
 }
 
 .network3d-fallback {
@@ -281,6 +301,196 @@ body {
   margin: 0;
 }
 
+.network3d-modal {
+  position: absolute;
+  inset: 0;
+  background: rgba(15, 16, 19, 0.72);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  z-index: 5;
+}
+
+.network3d-modal-card {
+  width: min(520px, 100%);
+  background: #fffdf8;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  padding: 14px;
+}
+
+.network3d-modal-card h3 {
+  margin: 0 0 10px;
+  font-size: 1rem;
+}
+
+.network3d-modal-image {
+  width: 100%;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  image-rendering: pixelated;
+  background: #111;
+}
+
+.network3d-modal-close {
+  margin-top: 10px;
+  border: 0;
+  border-radius: 8px;
+  background: var(--accent);
+  color: #fff;
+  padding: 8px 12px;
+  cursor: pointer;
+}
+
+.reasoning-card {
+  min-height: 260px;
+}
+
+.reasoning-intro {
+  margin-top: 0;
+  color: var(--muted);
+}
+
+.reasoning-card details {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 12px;
+  background: #fffcf5;
+  margin-bottom: 10px;
+}
+
+.reasoning-card summary {
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.reasoning-content {
+  margin-top: 10px;
+}
+
+.reasoning-image {
+  width: 140px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  image-rendering: pixelated;
+  background: #111;
+}
+
+.reasoning-subtitle {
+  font-weight: 700;
+  margin: 10px 0 8px;
+}
+
+.reasoning-map-strip {
+  margin-bottom: 12px;
+}
+
+.reasoning-map-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.reasoning-map-item {
+  margin: 0;
+  padding: 6px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: #fff;
+}
+
+.reasoning-map-item img {
+  width: 100%;
+  image-rendering: pixelated;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: #111;
+}
+
+.reasoning-map-item figcaption {
+  margin-top: 4px;
+  font-size: 0.78rem;
+  color: var(--muted);
+}
+
+.reasoning-block {
+  border: 1px dashed var(--border);
+  border-radius: 8px;
+  padding: 10px;
+  margin-bottom: 10px;
+}
+
+.reasoning-block h3 {
+  margin: 0 0 8px;
+  font-size: 1rem;
+}
+
+.matrix-row {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.matrix-block {
+  margin-bottom: 10px;
+}
+
+.matrix-title {
+  margin: 0 0 6px;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.matrix-table {
+  border-collapse: collapse;
+  font-size: 0.78rem;
+}
+
+.matrix-table td {
+  border: 1px solid var(--border);
+  padding: 3px 5px;
+  text-align: right;
+  font-family: Consolas, "Courier New", monospace;
+  background: #ffffff;
+}
+
+.mono-wrap {
+  font-family: Consolas, "Courier New", monospace;
+  overflow-wrap: anywhere;
+  font-size: 0.84rem;
+}
+
+.reasoning-terms {
+  display: grid;
+  gap: 6px;
+}
+
+.reasoning-term-row {
+  font-family: Consolas, "Courier New", monospace;
+  font-size: 0.84rem;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  padding: 6px;
+}
+
+.reasoning-link-btn {
+  text-align: left;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: #fff;
+  padding: 7px;
+  cursor: pointer;
+  font-family: Consolas, "Courier New", monospace;
+  font-size: 0.84rem;
+}
+
+.reasoning-link-btn.active {
+  border-color: #ff8d3a;
+  background: #fff2e8;
+}
+
 @media (max-width: 900px) {
   .top-layout {
     grid-template-columns: 1fr;
@@ -292,6 +502,14 @@ body {
 
   .compare-grid {
     grid-template-columns: 1fr;
+  }
+
+  .matrix-row {
+    grid-template-columns: 1fr;
+  }
+
+  .reasoning-map-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .page {
