@@ -21,10 +21,7 @@ env/
 # FastAPI / runtime
 *.log
 
-# Model artifacts
-model/*.pth
-*.pt
-*.onnx
+
 
 # Node / React / Vite
 frontend/node_modules/
