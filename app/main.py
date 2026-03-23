@@ -127,9 +127,14 @@ def compress_activation(activation: torch.Tensor) -> List[float]:
     return pooled.cpu().tolist()
 
 
-def extract_feature_maps(activation: torch.Tensor, max_maps: int = 12) -> List[Dict[str, Any]]:
+def extract_feature_maps(
+    activation: torch.Tensor,
+    pre_activation: Optional[torch.Tensor] = None,
+    max_maps: int = 12,
+) -> List[Dict[str, Any]]:
     """Return a small, representative set of normalized feature maps for visualization."""
     feature_tensor = activation.squeeze(0).detach().cpu()  # [C, H, W]
+    pre_tensor = pre_activation.squeeze(0).detach().cpu() if pre_activation is not None else None
     channels = feature_tensor.shape[0]
     k = min(max_maps, channels)
 
@@ -147,6 +152,7 @@ def extract_feature_maps(activation: torch.Tensor, max_maps: int = 12) -> List[D
             {
                 "channel": int(channel_index.item()),
                 "mean_activation": float(fmap.mean().item()),
+                "signed_mean": float(pre_tensor[int(channel_index)].mean().item()) if pre_tensor is not None else float(fmap.mean().item()),
                 "values": normalized.tolist(),
                 "preview_image": _tensor_to_png_b64(normalized),
             }
@@ -488,9 +494,21 @@ async def predict(file: UploadFile = File(...)) -> Dict[str, object]:
             "conv3": compress_activation(MODEL.last_activations["conv3"]),
         },
         "feature_maps": {
-            "conv1": extract_feature_maps(MODEL.last_activations["conv1"], max_maps=12),
-            "conv2": extract_feature_maps(MODEL.last_activations["conv2"], max_maps=12),
-            "conv3": extract_feature_maps(MODEL.last_activations["conv3"], max_maps=12),
+            "conv1": extract_feature_maps(
+                MODEL.last_activations["conv1"],
+                pre_activation=MODEL.debug_tensors.get("conv1_pre"),
+                max_maps=12,
+            ),
+            "conv2": extract_feature_maps(
+                MODEL.last_activations["conv2"],
+                pre_activation=MODEL.debug_tensors.get("conv2_pre"),
+                max_maps=12,
+            ),
+            "conv3": extract_feature_maps(
+                MODEL.last_activations["conv3"],
+                pre_activation=MODEL.debug_tensors.get("conv3_pre"),
+                max_maps=12,
+            ),
         },
         "explainability": explainability,
         "heatmap": heatmap_b64,
