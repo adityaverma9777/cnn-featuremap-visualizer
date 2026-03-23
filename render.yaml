@@ -1,0 +1,24 @@
+services:
+  - type: web
+    name: ai-inference-backend
+    env: python
+    plan: free
+    rootDir: .
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    autoDeploy: true
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.9
+      - key: CORS_ALLOW_ORIGINS
+        sync: false
+
+  - type: static
+    name: ai-inference-frontend
+    rootDir: frontend
+    buildCommand: npm install && npm run build
+    staticPublishPath: dist
+    pullRequestPreviewsEnabled: false
+    envVars:
+      - key: VITE_API_BASE_URL
+        sync: false

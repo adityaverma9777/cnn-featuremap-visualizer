@@ -74,3 +74,47 @@ npm run dev
 ```
 
 The frontend expects the FastAPI server at `http://127.0.0.1:8000`.
+
+## Deploy Both Services on Render
+
+This repo includes `render.yaml` so Render can provision both services from GitHub:
+
+- `ai-inference-backend` (Python web service)
+- `ai-inference-frontend` (static site from `frontend/`)
+
+### 1. Push this repo to GitHub
+
+Render will deploy from your GitHub repository.
+
+### 2. Create Blueprint in Render
+
+1. In Render Dashboard, click **New +** -> **Blueprint**.
+2. Connect your GitHub repo.
+3. Render detects `render.yaml` and creates both services.
+
+### 3. Configure Environment Variables
+
+After first creation, set:
+
+- Backend service:
+  - `CORS_ALLOW_ORIGINS=https://<your-frontend>.onrender.com`
+- Frontend service:
+  - `VITE_API_BASE_URL=https://<your-backend>.onrender.com`
+
+If you use custom domains, use those domain URLs instead.
+
+### 4. Redeploy
+
+Trigger a redeploy for both services after setting env vars.
+
+### 5. Verify
+
+- Open frontend URL from Render.
+- Upload an image and run prediction.
+- Confirm requests go to `https://<your-backend>.onrender.com/predict`.
+
+## Config Files for Hosting
+
+- Backend env template: `.env.example`
+- Frontend env template: `frontend/.env.example`
+- Render blueprint: `render.yaml`

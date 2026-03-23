@@ -1,5 +1,6 @@
 import base64
 from io import BytesIO
+import os
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
@@ -449,9 +450,18 @@ def generate_gradcam_heatmap(
 
 app = FastAPI(title="Local AI Inference API")
 
+
+def _parse_cors_origins(raw_value: str) -> List[str]:
+    parts = [item.strip() for item in raw_value.split(",")]
+    return [item for item in parts if item]
+
+
+RAW_CORS_ORIGINS = os.getenv("CORS_ALLOW_ORIGINS", "*")
+CORS_ORIGINS = ["*"] if RAW_CORS_ORIGINS.strip() == "*" else _parse_cors_origins(RAW_CORS_ORIGINS)
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=CORS_ORIGINS,
     allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],

@@ -12,7 +12,8 @@ import {
 import ModelReasoning from "./ModelReasoning";
 const Network3D = lazy(() => import("./Network3D"));
 
-const API_URL = "http://127.0.0.1:8000/predict";
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://127.0.0.1:8000";
+const API_URL = `${API_BASE_URL.replace(/\/$/, "")}/predict`;
 const VIEW_MODES = {
   ORIGINAL: "original",
   OVERLAY: "overlay",
@@ -147,7 +148,7 @@ export default function App() {
           </button>
         </form>
 
-        <p className="local-note">Running locally at 127.0.0.1. No cloud services required.</p>
+        <p className="local-note">Frontend API target: {API_BASE_URL}</p>
         {error && <p className="error">{error}</p>}
 
         <div className="top-layout">
