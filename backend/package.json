@@ -1,0 +1,8 @@
+{
+  "name": "ai-inference-backend-runner",
+  "private": true,
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "node run-dev.js"
+  }
+}
